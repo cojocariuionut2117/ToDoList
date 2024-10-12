@@ -87,7 +87,7 @@ button.delete:hover {
     background-color: #c82333;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 800px) {
     .container {
         width: 90%; /* Pe ecrane mici, va fi 90% din lățime */
     }
