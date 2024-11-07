@@ -31,7 +31,7 @@ function addTaskToDOM(taskText, isCompleted = false) {
     taskTextNode.textContent = taskText;
 
     const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = 'Șterge';
+    deleteBtn.textContent = 'Delete';
     deleteBtn.classList.add('delete');
     deleteBtn.addEventListener('click', () => {
         taskList.removeChild(listItem);
