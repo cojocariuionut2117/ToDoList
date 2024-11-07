@@ -1,56 +1,62 @@
-// Selectăm elementele din DOM
 const taskInput = document.getElementById('taskInput');
 const addTaskBtn = document.getElementById('addTaskBtn');
 const taskList = document.getElementById('taskList');
 
-// Funcție pentru a adăuga o nouă sarcină
-function addTask() {
-    const taskText = taskInput.value.trim();
-
-    if (taskText !== '') {
-        const listItem = document.createElement('li');
-
-        // Creăm checkbox pentru a bifa sarcina ca realizată
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.addEventListener('change', function () {
-            if (checkbox.checked) {
-                listItem.classList.add('completed');
-            } else {
-                listItem.classList.remove('completed');
-            }
-        });
-
-        // Adăugăm textul sarcinii
-        const taskTextNode = document.createTextNode(taskText);
-
-        // Creăm butonul de ștergere
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'Șterge';
-        deleteBtn.classList.add('delete');
-        deleteBtn.addEventListener('click', function () {
-            taskList.removeChild(listItem);
-        });
-
-        // Adăugăm checkbox, text și butonul de ștergere în list item
-        listItem.appendChild(checkbox);
-        listItem.appendChild(taskTextNode);
-        listItem.appendChild(deleteBtn);
-
-        // Adăugăm sarcina în lista de sarcini
-        taskList.appendChild(listItem);
-
-        // Resetăm input-ul
-        taskInput.value = '';
-    }
+function loadTasks() {
+    const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    tasks.forEach(task => addTaskToDOM(task.text, task.completed));
 }
 
-// Adăugăm eveniment pe butonul de adăugare
-addTaskBtn.addEventListener('click', addTask);
+function saveTasks() {
+    const tasks = [];
+    document.querySelectorAll('#taskList li').forEach(item => {
+        tasks.push({ text: item.querySelector('span').innerText, completed: item.classList.contains('completed') });
+    });
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+}
 
-// Permitem adăugarea sarcinii și prin apăsarea tastei Enter
-taskInput.addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        addTask();
+function addTaskToDOM(taskText, isCompleted = false) {
+    const listItem = document.createElement('li');
+    listItem.classList.toggle('completed', isCompleted);
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = isCompleted;
+    checkbox.addEventListener('change', () => {
+        listItem.classList.toggle('completed');
+        saveTasks();
+    });
+
+    const taskTextNode = document.createElement('span');
+    taskTextNode.textContent = taskText;
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Șterge';
+    deleteBtn.classList.add('delete');
+    deleteBtn.addEventListener('click', () => {
+        taskList.removeChild(listItem);
+        saveTasks();
+    });
+
+    listItem.appendChild(checkbox);
+    listItem.appendChild(taskTextNode);
+    listItem.appendChild(deleteBtn);
+
+    taskList.appendChild(listItem);
+}
+
+addTaskBtn.addEventListener('click', () => {
+    if (taskInput.value.trim() !== '') {
+        addTaskToDOM(taskInput.value.trim());
+        saveTasks();
+        taskInput.value = '';
     }
 });
+
+taskInput.addEventListener('keypress', e => {
+    if (e.key === 'Enter') {
+        addTaskBtn.click();
+    }
+});
+
+window.addEventListener('load', loadTasks);
